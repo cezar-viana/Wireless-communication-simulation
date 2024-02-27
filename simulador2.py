@@ -94,7 +94,8 @@ class System:
        self.__UeList = [] #list for all ues
        self.__ApList = [] #list for all aps 
        self.__ChList = []
-       
+       self.sinr = []
+       self.mbps = []
        #could exist a list of aps here and then calculate the distance using a for and making association
       
    def add_ch(self, n_ch):
@@ -238,9 +239,7 @@ class System:
           print(u.get_mbps()) 
    
    def vector_sinr(self):
-       l = []
-       for u in self.__UeList:
-           l.append(u.get_sinr())
+       l = self.sinr
        
        l.sort()
        p = 1. * np.arange(len(l)) / (len(l) - 1)
@@ -248,9 +247,8 @@ class System:
         
        
    def vector_mbps(self):
-       l = []
-       for u in self.__UeList:
-           l.append(u.get_mbps())
+       l = self.mbps
+       
        l.sort()
        p = 1. * np.arange(len(l)) / (len(l) - 1)
        return [p,l]
@@ -276,6 +274,7 @@ class System:
            s.dist = inf
        return [x,y]   
    
+    
    def get_UES(self):  
        return len(self.__UeList)
    def get_APS(self):  
@@ -304,11 +303,26 @@ class System:
        for a in self.__UeList:
           l.append(a.coord_ue[1])
        return l
+   
+    
    def get_coordUE(self):
        l = []
        for a in self.__UeList:
          print(a.coord_ue)
+    
+   def add_sinr(self):
+       for u in self.__UeList:
+         self.sinr.append(u.get_sinr())
+   def add_mbps(self):
+       for u in self.__UeList:
+         self.mbps.append(u.get_mbps())
          
+   def del_UES(self):
+       self.__UeList.clear()
+           
+   def get_len_sinr(self):
+       return len(self.sinr)       
+           
 if __name__ == "__main__":
    system = System()
    system.add_ch(3)
@@ -316,17 +330,25 @@ if __name__ == "__main__":
    system.add_ap(64)
    print(system.get_APS())
    
-   for i in range(1): #number of runs
+   for i in range(20): #number of runs
      n = 10 #number of ues
      c = 0 #counting
      while c<n: #adding UES
        system.add_ue()
        c = c+1
-   
+       
+     #calculating data
      system.comunicate() 
      system.calcule_snr()
      system.calculate_sinr()
      system.calcule_link_capacity()
+     
+     #appending data
+     system.add_sinr()
+     system.add_mbps()
+     
+     #deleting objects
+     system.del_UES()
      
    dados_x1 = system.get_pts_x_AP()
    dados_y1 = system.get_pts_y_AP()
