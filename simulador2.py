@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb 27 12:16:23 2024
+
+@author: aluno
+"""
 # -*- coding: utf-8 -*-
 """
 Created on Tue Nov  7 20:40:54 2023
@@ -267,7 +274,8 @@ class System:
            l2.append(u)   
            l.remove(s)
            s.dist = inf
-       return [x,y]    
+       return [x,y]   
+   
    def get_UES(self):  
        return len(self.__UeList)
    def get_APS(self):  
@@ -275,17 +283,41 @@ class System:
    def get_CH(self):  
        return len(self.__ChList)
    
-       
-
+    
+   def get_pts_x_AP(self):
+       l = []
+       for a in self.__ApList:
+          l.append(a.coord_ap[0])
+       return l
+   def get_pts_y_AP(self):
+       l = []
+       for a in self.__ApList:
+          l.append(a.coord_ap[1])
+       return l
+   def get_pts_x_UE(self):
+       l = []
+       for a in self.__UeList:
+          l.append(a.coord_ue[0])
+       return l   
+   def get_pts_y_UE(self):
+       l = []
+       for a in self.__UeList:
+          l.append(a.coord_ue[1])
+       return l
+   def get_coordUE(self):
+       l = []
+       for a in self.__UeList:
+         print(a.coord_ue)
+         
 if __name__ == "__main__":
    system = System()
-   system.add_ch(500)
+   system.add_ch(3)
    print(system.get_CH())
    system.add_ap(64)
    print(system.get_APS())
    
-   for i in range(5): #number of runs
-     n = 50 #number of ues
+   for i in range(1): #number of runs
+     n = 10 #number of ues
      c = 0 #counting
      while c<n: #adding UES
        system.add_ue()
@@ -295,19 +327,25 @@ if __name__ == "__main__":
      system.calcule_snr()
      system.calculate_sinr()
      system.calcule_link_capacity()
+     
+   dados_x1 = system.get_pts_x_AP()
+   dados_y1 = system.get_pts_y_AP()
+   dados_x2 = system.get_pts_x_UE()
+   dados_y2 = system.get_pts_y_UE()
+   
    print(system.get_UES())
    print('--------------','\n')
    
    x = system.vector_sinr()
    
-   plt.plot(x[0],x[1])
+   plt.plot(x[1],x[0])
    plt.title('SINR CDF')
    plt.grid()
    plt.show()
    
    y = system.vector_mbps()
   
-   plt.plot(y[0],y[1])
+   plt.plot(y[1],y[0])
    plt.title('Link Capacity CDF')
    plt.grid()
    plt.show()
@@ -323,6 +361,13 @@ if __name__ == "__main__":
    plt.ylabel('capacity')
    plt.title('Capacity x Distance')
    plt.grid()
+   plt.show()
+   
+   
+   plt.scatter(dados_x1, dados_y1, color='blue', marker='o', label='Pontos Tipo 1')  
+   plt.scatter(dados_x2, dados_y2, color='red', marker='^', label='Pontos Tipo 2')
+   plt.xlabel('Eixo X')
+   plt.ylabel('Eixo Y')
    plt.show()
    
    
