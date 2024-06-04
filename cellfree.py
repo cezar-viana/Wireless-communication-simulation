@@ -489,7 +489,9 @@ class System:
        for u in self.__UeList:
          
          p_total = num_cluster*p_tc + p_fix + num_cluster*band*u.link_capacity*p_ft
-         ee = u.link_capacity/p_total    
+         print(u.link_capacity)
+         ee = u.link_capacity/p_total 
+         print(ee)
          u.energy_efficiency = ee
         
          
@@ -623,7 +625,7 @@ class System:
 
             count = count+1
 
-   def blabla(self):
+   def blabla(self): #serves to know cell edge distance
       aux = inf
       obj = 0
       for u in self.__UeList:
@@ -632,7 +634,7 @@ class System:
                aux = j
                obj = u
       self.blabla2.append(obj)
-   def blabla3(self):
+   def blabla3(self): 
       aux = inf
       obj = 0
       for i in self.blabla2:
@@ -670,9 +672,9 @@ if __name__ == "__main__":
         c = c+1
 
       #calculating data
-      system.calcule_snr()
+      system.calculate_snr()
 
-      system.calcule_link_capacity()
+      system.calculate_link_capacity()
       system.calculate_energy_efficiency(list_[count])
       #appending data
       system.add_snr(count)
@@ -686,7 +688,7 @@ if __name__ == "__main__":
 
 
      count = count+1
-     print('count iwjadikajhslkdhjkawhdjhaujwdhgwua:',count,'\n')
+     print('count:',count,'\n')
    dados_x1 = system.get_pts_x_AP()
    dados_y1 = system.get_pts_y_AP()
    dados_x2 = system.get_pts_x_UE()
