@@ -32,7 +32,7 @@ import numpy as np
 from math import sqrt, log2, log10, inf
 import matplotlib.pyplot as plt
 
-class Coord: #coord class to define ue and ap positions
+class Coord: #coord class to define ue position
    def __init__(self):
       self.coord = [np.random.randint(1000,size=1),np.random.randint(1000,size=1)] #self.__coord[0] must be the x and [1] the y
 
@@ -50,25 +50,25 @@ class UE:
    def __init__(self):
       c = Coord()
       self.coord_ue = c.coord #ue coordinate
-      self.dist = 0 #setter
       self.propagation_model = [] #power received by the ap
       self.snr = [] #power noise ratio
       self.sinr = [] #power interference noise ratio
-      self.mbps = 0 #link capacity
+      self.link_capacity = 0 #link capacity
       self.channel = 0 #channel object that was allocated to ue
       self.AP_associated = [] #AP object to be associated
       self.energy_efficiency = 0
-
-      self.amount = 0
-      self.angle = 0
-      self.direction = 0
-      self.movement_finished = 0
-      self.limit_axis = 0
+      self.amount = 0 #amount of meters to move
+      self.angle = 0 #angle of movement
+      self.direction = 0 #defines if UE is moving to left or right
+      self.movement_finished = 0 #state of movement 
+      self.limit_axis = 0 
+      
    def state(self):
        if self.amount <= 0:
           self.movement_finished = True
        else:
           self.movement_finished = False
+          
    def define_amount_x(self):
          n = np.random.randint(3,size=1)
          if n == 0:
@@ -108,13 +108,12 @@ class UE:
    def get_sinr(self):
        return (10*log10(self.sinr))
 
-   def get_mbps(self):
-       return (self.mbps*(10**-6))
+   def get_link_capacity(self):
+       return (self.link_capacity*(10**-6))
 
 class Channel:
     def __init__(self):
         band = 100000000
-
 
 
 class AP:
@@ -145,7 +144,7 @@ class System:
        self.snr_list = [[],[],[],[],[]]  #list of all snr data
        self.energy_efficiency_list = [[],[],[],[],[]]
        self.blabla2 = []
-       #could exist a list of aps here and then calculate the distance using a for and making association
+       
 
 
    def add_ch(self, n_ch): #add a channel
@@ -158,7 +157,7 @@ class System:
    def add_ue(self,group_number): #add an ue
      c = UE()
      #c.define_amount_x()
-     num = 1
+     num = 1 
      l = self.__ApList.copy()
      count = 0
      while count<group_number:
@@ -272,7 +271,7 @@ class System:
 
 
 
-   def calcule_snr(self):
+   def calculate_snr(self):
        band = 100000000
 
 
@@ -316,7 +315,7 @@ class System:
          x = x+1
 
 
-   def calcule_link_capacity(self):
+   def calculate_link_capacity(self):
        band = 100000000
        bc = band/len(self.__ChList)
        s = 0
@@ -324,13 +323,12 @@ class System:
          for w in u.snr:
            s = s+w
          cap = bc*log2(1+s)
-         u.mbps = cap
+         u.link_capacity = cap
          s=0
 
    def plot_propagation_model(self):
        for u in self.__UeList:
-
-           print('power received:',u.get_propagation_model())
+          print('power received:',u.get_propagation_model())
 
    def plot_snr(self):
        for u in self.__UeList:
@@ -342,7 +340,7 @@ class System:
 
    def plot_link_capacity(self):
        for u in self.__UeList:
-          print('cap: ',u.mbps)
+          print('cap: ',u.link_capacity)
 
    def vector_sinr(self,n): #CDF
 
@@ -365,12 +363,14 @@ class System:
        l.sort()
        p = 1. * np.arange(len(l)) / (len(l) - 1)
        return [p,l]
+   
    def vector_energy_efficiency(self,n): #CDF
        l = self.energy_efficiency_list[n]
 
        l.sort()
        p = 1. * np.arange(len(l)) / (len(l) - 1)
        return [p,l]
+   
    def ordenate(self):
        l = self.__UeList
        l2 = []
@@ -392,14 +392,12 @@ class System:
            s.dist = inf
        return [x,y]
 
-
    def get_UES(self):
        return len(self.__UeList)
    def get_APS(self):
        return len(self.__ApList)
    def get_CH(self):
        return len(self.__ChList)
-
 
    def get_pts_x_AP(self):
        l = []
@@ -412,6 +410,7 @@ class System:
             else:
               l.append(a.coord_ap[0])
        return [l,l2]
+   
    def get_pts_y_AP(self):
        l = []
        l2 = []
@@ -423,11 +422,13 @@ class System:
             else:
               l.append(a.coord_ap[1])
        return [l,l2]
+   
    def get_pts_x_UE(self):
        l = []
        for a in self.__UeList:
           l.append(a.coord_ue[0])
        return l
+   
    def get_pts_y_UE(self):
        l = []
        for a in self.__UeList:
@@ -446,10 +447,13 @@ class System:
          self.sinr_list[n].append(u.get_sinr())
    def add_mbps(self, n):
        for u in self.__UeList:
-         self.mbps_list[n].append(u.get_mbps())
+         self.mbps_list[n].append(u.get_link_capacity())
    def add_snr(self, n):
        for u in self.__UeList:
-        self.snr_list[n].append(u.get_snr())
+         s=0   
+         for k in u.snr: 
+            s=s+k   
+         self.snr_list[n].append(10*log10(s))
    def add_energy_efficiency(self,n):
        for u in self.__UeList:
          self.energy_efficiency_list[n].append(u.energy_efficiency)
@@ -460,6 +464,7 @@ class System:
 
    def get_len_sinr(self):
        return len(self.sinr)
+   
    def check_ap(self):
        for u in self.__UeList:
 
@@ -467,6 +472,7 @@ class System:
             return True
           else:
             return False
+        
    def get_coordinates(self): #to get coordinates and
        for u in self.__UeList:
         print('coord ap: ',u.AP_associated.coord_ap,'coord ue: ', u.coord_ue)
@@ -475,11 +481,18 @@ class System:
    def del_APS(self):
        self.__ApList.clear()
 
-   def calculate_energy_efficiency(self,num_group):
+   def calculate_energy_efficiency(self,num_cluster):
+       p_tc = 0.2
+       p_fix = 0.825
+       p_ft = 0.25/10**9
+       band = 100000000
        for u in self.__UeList:
-         power_transmitted = 1*num_group
-         ee = u.mbps/power_transmitted
+         
+         p_total = num_cluster*p_tc + p_fix + num_cluster*band*u.link_capacity*p_ft
+         ee = u.link_capacity/p_total    
          u.energy_efficiency = ee
+        
+         
 
    def define_amount_movement(self):
        for u in self.__UeList:
@@ -656,26 +669,16 @@ if __name__ == "__main__":
         system.add_ue(list_[count])
         c = c+1
 
+      #calculating data
+      system.calcule_snr()
 
-      system.define_amount_movement()
-      state = system.all_finished()
-      while state==False:
-
-        #calculating data
-        system.calcule_snr()
-
-        system.calcule_link_capacity()
-        system.calculate_energy_efficiency(list_[count])
-        #appending data
-
-        system.add_mbps(count)
-        system.add_energy_efficiency(count)
-        #moving ue
-        system.move_ue()
-
-        system.handover(list_[count])
-        state = system.all_finished()
-
+      system.calcule_link_capacity()
+      system.calculate_energy_efficiency(list_[count])
+      #appending data
+      system.add_snr(count)
+      system.add_mbps(count)
+      system.add_energy_efficiency(count)
+    
 
       #deleting objects
       system.del_UES()
@@ -724,14 +727,14 @@ if __name__ == "__main__":
    percentile_index5 = int(0.1*len(y5[1]))
    valor5 = y5[1][percentile_index5]
 
-   plt.plot(y1[1],y1[0], color = 'blue',label='Cellular')
-   plt.plot(y2[1],y2[0],color='red',label='Cell-free: 3 APs',linestyle=':')
-   plt.plot(y3[1],y3[0],color='green',label='Cell-free: 4 APs',alpha=0.6)
+   plt.plot(y1[1],y1[0], color = 'blue',label='Cellular: Small cells')
+   plt.plot(y2[1],y2[0],color='red',label='Cell-free: 3 APs')
+   plt.plot(y3[1],y3[0],color='orange',label='Cell-free: 4 APs',linestyle='--')
    plt.plot(y4[1],y4[0],color='black',label='Cell-free: 5 APs')
-   plt.plot(y5[1],y5[0],color='aqua',label='Cell-free: 64 APs',linestyle='--')
+   plt.plot(y5[1],y5[0],color='green',label='Cell-free: 64 APs',linestyle='--',alpha=0.7)
    #plt.suptitle('LINK CAPACITY CDF', y=1.0, fontsize=18)
    #plt.title('UE=1 / APs=64 / CH=1', fontsize=10)
-   plt.axhline(y=0.05, color='black', linestyle='--',label= '95% likely',alpha=0.3)
+   plt.axhline(y=0.05, color='black', linestyle='--',label= '95% likely',alpha=0.4)
    #plt.axvline(valor, color = 'red', linestyle = '--', alpha = 0.5)
    plt.xlabel('Mbit/s')
    plt.ylabel('Cumulative Distribution')
@@ -748,11 +751,11 @@ if __name__ == "__main__":
    z3 = system.vector_energy_efficiency(2)
    z4 = system.vector_energy_efficiency(3)
    z5 = system.vector_energy_efficiency(4)
-   plt.plot(z1[1],z1[0], color = 'blue',label='Cellular')
-   plt.plot(z2[1],z2[0],color='red',label='Cell-free: 3 APs',linestyle=':')
-   plt.plot(z3[1],z3[0],color='green',label='Cell-free: 4 APs',linestyle='--',alpha=0.6)
+   plt.plot(z1[1],z1[0], color = 'blue',label='Cellular: Small cells')
+   plt.plot(z2[1],z2[0],color='red',label='Cell-free: 3 APs')
+   plt.plot(z3[1],z3[0],color='orange',label='Cell-free: 4 APs')
    plt.plot(z4[1],z4[0],color='black',label='Cell-free: 5 APs')
-   plt.plot(z5[1],z5[0],color='aqua',label='Cell-free: 64 APs',linestyle = '-',alpha=0.6)
+   plt.plot(z5[1],z5[0],color='green',label='Cell-free: 64 APs')
    #plt.suptitle('ENERGY EFFICIENCY CDF', y=1.0, fontsize=18)
    #plt.title('UE=1 / APs=64 / CH=1', fontsize=10)
    plt.xlabel('bit/joule')
@@ -761,7 +764,27 @@ if __name__ == "__main__":
    plt.grid()
    plt.savefig("energy efficiency.pdf")
    plt.show()
-
+   
+   w1 = system.vector_snr(0)
+   w2 = system.vector_snr(1)
+   w3 = system.vector_snr(2)
+   w4 = system.vector_snr(3)
+   w5 = system.vector_snr(4)
+   plt.plot(w1[1],w1[0], color = 'blue',label='Cellular: Small cells')
+   plt.plot(w2[1],w2[0],color='red',label='Cell-free: 3 APs')
+   plt.plot(w3[1],w3[0],color='orange',label='Cell-free: 4 APs',linestyle='--')
+   plt.plot(w4[1],w4[0],color='black',label='Cell-free: 5 APs')
+   plt.plot(w5[1],w5[0],color='green',label='Cell-free: 64 APs',linestyle='--',alpha=0.7)
+   #plt.suptitle('LINK CAPACITY CDF', y=1.0, fontsize=18)
+   #plt.title('UE=1 / APs=64 / CH=1', fontsize=10)
+   plt.axhline(y=0.05, color='black', linestyle='--',label= '95% likely',alpha=0.4)
+   #plt.axvline(valor, color = 'red', linestyle = '--', alpha = 0.5)
+   plt.xlabel('SNR(dB)')
+   plt.ylabel('Cumulative Distribution')
+   plt.legend()
+   plt.grid()
+   plt.savefig("snr.pdf")    
+   plt.show()
    #x1 = a[0]
    #y1 = a[1]
 
