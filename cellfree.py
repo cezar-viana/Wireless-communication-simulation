@@ -489,9 +489,9 @@ class System:
        for u in self.__UeList:
          
          p_total = num_cluster*p_tc + p_fix + num_cluster*band*u.link_capacity*p_ft
-         print(u.link_capacity)
+        
          ee = u.link_capacity/p_total 
-         print(ee)
+     
          u.energy_efficiency = ee
         
          
